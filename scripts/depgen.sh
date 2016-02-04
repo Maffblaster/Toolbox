@@ -1,33 +1,11 @@
-#!/bin/bash
+#!/bin/sh
 
-# This bash script accepts an executable binary as input. It attempts to generate a list of dependencies based on the system's currently installed packages.
+FILELIST=$(qlist -e "$@")
+if [[ -z $FILELIST ]] ; then
+FILELIST="$@"
+fi
+ 
+echo -e 'Check RDEPENDs of package...'
+#read word
+scanelf -L -n -q -F '%n #F' ${FILELIST} | tr , ' ' | xargs --no-run-if-empty qfile -C | sort -u
 
-# MIT LICENSE
-
-VERSION="0.0.1"
-
-while [ $# -ge 2 ]; do
-        case "$1" in
-                --)
-                    # No more options left.
-                    shift
-                    break
-                   ;;
-                -s|--searchpath)
-                        searchpath="$2"
-                        shift
-                        ;;
-                -h|--help)
-			printf "depgen <option> <binpkg>\n"
-                        printf "depgen v${VERSION}\n"
-                        exit 0
-                        ;;
-		*)
-			printf "depgen <option> <binpkg>\n"
-			;;
-        esac
-
-        shift
-done
-
-echo ${1}
